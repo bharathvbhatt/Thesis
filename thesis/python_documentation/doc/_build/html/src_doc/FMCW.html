@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html class="writer-html4" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FMCW Reader &mdash; Thesis 1 documentation</title><link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="DFE Reader" href="DFE.html" />
+    <link rel="prev" title="Installation Setup" href="Installation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> Thesis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="Installation.html">Installation Setup</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">FMCW Reader</a></li>
+<li class="toctree-l1"><a class="reference internal" href="DFE.html">DFE Reader</a></li>
+<li class="toctree-l1"><a class="reference internal" href="FSCW.html">FSCW Reader</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Thesis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>FMCW Reader</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/src_doc/FMCW.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="fmcw-reader">
+<h1>FMCW Reader<a class="headerlink" href="#fmcw-reader" title="Permalink to this headline">¶</a></h1>
+<p>Frequency modulated continuous waveform (FMCW) reader is the first and easiest reader to implement.
+The working of the reader is detailed in the thesis. Here the emphasis is on programming the same on Pluto SDR.
+Python programming is used for this purpose. Also, GNU radio and MATLAB can also be used.
+Inital designs were created on GNU radio for easy analysis of the reader architecture.</p>
+<p>The reader in terms of programming is divided into four major parts. The coding is made simple without any object oriented programming.
+If there is a need in future the parts described below can as is it be used in the oops file structre.</p>
+<p>The first part of the coding is on generation of the waveform.
+FMCW is part of many python library, if desired it can also be obtained by the mathematical equation.</p>
+<p>The file in src folder <em>FMCW.py</em> and <em>FMCW_analysis.py</em> will be discussed in this documentation.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">adi</span> <span class="c1">#pluto sdr library</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="kn">import</span> <span class="n">chirp</span><span class="p">,</span><span class="n">hilbert</span> <span class="c1">#chirp gives the FMCW waveform</span>
+</pre></div>
+</div>
+<p>In the above code section shows the inclusion of the libraries needed.
+<em>adi</em> is the python library provided by <em>Aanlog Devices</em>. To generate FMCW waveform <em>scipy.signal</em> library is made use of.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">fs</span> <span class="o">=</span> <span class="mf">50e6</span> <span class="c1"># sampling rate</span>
+<span class="n">N</span><span class="o">=</span><span class="mi">50000</span>   <span class="c1"># Number of samples</span>
+<span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mf">0.001</span><span class="p">,</span><span class="mi">1</span><span class="o">/</span><span class="n">fs</span><span class="p">)</span> <span class="c1"># time variable corresponds to the period i.e from 0-T</span>
+<span class="n">f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">fs</span><span class="p">,</span><span class="n">fs</span><span class="o">/</span><span class="n">N</span><span class="p">)</span>  <span class="c1"># frequency variable, corresponds to the bandwidth</span>
+<span class="n">fmcw_array</span> <span class="o">=</span> <span class="n">chirp</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mf">0.001</span><span class="p">,</span><span class="mf">20e6</span><span class="p">,</span><span class="n">method</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">)</span> <span class="c1"># FMCW waveform</span>
+<span class="n">array_samp</span> <span class="o">=</span> <span class="n">hilbert</span><span class="p">(</span><span class="n">fmcw_array</span><span class="p">)</span>  <span class="c1"># To make complex signal</span>
+
+<span class="sd">&quot;&quot;&quot; To save the generated waveform into a file used for C programming&quot;&quot;&quot;</span>
+<span class="n">fmcw_waveform</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+<span class="n">fmcw_waveform</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fmcw_waveform</span><span class="p">,</span><span class="n">array_samp</span><span class="p">)</span> <span class="c1"># new variable to hold the complex FMCW waveform</span>
+<span class="n">fmcw_waveform</span> <span class="o">*=</span><span class="mi">2</span><span class="o">**</span><span class="mi">14</span> <span class="c1"># Pluto SDR doesn&#39;t work from -1 to 1 instead from -2**14 to 2**14</span>
+<span class="n">fmcw_waveform</span><span class="o">=</span><span class="n">fmcw_waveform</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">complex64</span><span class="p">)</span>
+<span class="n">fmcw_waveform</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int_</span><span class="p">(</span><span class="n">fmcw_waveform</span><span class="o">.</span><span class="n">real</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int_</span><span class="p">(</span><span class="n">fmcw_waveform</span><span class="o">.</span><span class="n">imag</span><span class="p">))</span><span class="o">*</span><span class="mi">1</span><span class="n">J</span>
+<span class="n">fmcw_waveform</span><span class="o">.</span><span class="n">tofile</span><span class="p">(</span><span class="s2">&quot;fmcwsamples.iq&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The above program shows the generation of the FMCW waveform. Initially <em>fs</em> sampling frequency and number of samples used is set.
+<em>t</em> the time range or independent variable is set from 0 - 1ms in steps of <em>fs</em>. The frequency variable is also set for plotting. This ranges from 0-20MHz.
+Since pluto SDR uses Zero-IF, the waveform has to be converted to complex waveform, this is done using the hilbert transform.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sample_rate</span> <span class="o">=</span> <span class="n">fs</span> <span class="c1"># sampling rate Hz</span>
+<span class="n">center_freq</span> <span class="o">=</span> <span class="mf">2.42e9</span> <span class="c1"># Centre Frequency Hz</span>
+<span class="n">sdr</span> <span class="o">=</span> <span class="n">adi</span><span class="o">.</span><span class="n">Pluto</span><span class="p">(</span><span class="s2">&quot;ip:192.168.3.1&quot;</span><span class="p">)</span> <span class="c1"># connect to the pluto SDR, here the IP is changed. So is the frequency range.</span>
+<span class="n">sdr</span><span class="o">.</span><span class="n">tx_destroy_buffer</span><span class="p">()</span> <span class="c1">#clean or empty the buffer</span>
+<span class="n">sdr</span><span class="o">.</span><span class="n">sample_rate</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">sample_rate</span><span class="p">)</span>
+<span class="n">sdr</span><span class="o">.</span><span class="n">tx_rf_bandwidth</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">sample_rate</span><span class="p">)</span> <span class="c1"># filter cutoff, just set it to the same as sample rate</span>
+<span class="n">sdr</span><span class="o">.</span><span class="n">tx_lo</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">center_freq</span><span class="p">)</span>
+<span class="n">sdr</span><span class="o">.</span><span class="n">tx_hardwaregain_chan0</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1"># Increase to increase tx power, valid range is -90 to 0 dB</span>
+<span class="n">N</span> <span class="o">=</span> <span class="mi">50000</span> <span class="c1"># number of samples to transmit at once</span>
+
+<span class="n">samples</span> <span class="o">=</span>  <span class="n">array_samp</span>   <span class="c1">#0.5*np.exp(2.0j*np.pi*100e3*t) # Simulate a sinusoid of 100 kHz, so it should show up at 915.1 MHz at the receiver</span>
+<span class="n">samples</span> <span class="o">*=</span> <span class="mi">2</span><span class="o">**</span><span class="mi">14</span> <span class="c1"># The PlutoSDR expects samples to be between -2^14 and +2^14, not -1 and +1 like some SDRs</span>
+
+<span class="sd">&quot;&quot;&quot; To transmit waveform cyclically &quot;&quot;&quot;</span>
+<span class="n">sdr</span><span class="o">.</span><span class="n">tx_cyclic_buffer</span> <span class="o">=</span> <span class="kc">True</span> <span class="c1"># Enable cyclic buffers</span>
+<span class="n">sdr</span><span class="o">.</span><span class="n">tx</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span> <span class="c1"># transmit the batch of samples once</span>
+</pre></div>
+</div>
+<p>Above coding section explains the Tx set up of the SDR. Using the <em>adi</em> library connection to pluto SDR is setup through its IP. The returned object <em>sdr</em> is used to setup the
+device parameters. The parameters such as sampling frequency (sampling rate), the center frequency i.e Tx_LO, Tx gain is set up. Instead of transmitting the same samples over and over again, Tx cyclic buffer is used.
+The samples are loaded once and <em>tx_cyclic_buffer</em> is made <em>true</em>.</p>
+<p>The next step is to capture the signals sent back by the senors. The following code block expalin the reception.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sdr</span><span class="o">.</span><span class="n">rx_lo</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">center_freq</span><span class="p">)</span>
+<span class="n">sdr</span><span class="o">.</span><span class="n">rx_rf_bandwidth</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">sample_rate</span><span class="p">)</span>
+<span class="n">sdr</span><span class="o">.</span><span class="n">rx_buffer_size</span> <span class="o">=</span> <span class="n">N</span>
+<span class="n">sdr</span><span class="o">.</span><span class="n">gain_control_mode_chan0</span> <span class="o">=</span> <span class="s1">&#39;slow_attack&#39;</span>  <span class="c1">#&#39;manual&#39;,&#39;fast_attack&#39;,&#39;slow_attack&#39;</span>
+<span class="n">sdr</span><span class="o">.</span><span class="n">rx_hardwaregain_chan0</span> <span class="o">=</span> <span class="mf">00.0</span> <span class="c1"># dB, increase for a stronger signal, but be careful not to saturate</span>
+</pre></div>
+</div>
+<p>Like Tx, Rx also initialized using <em>sdr</em> object. Parameters such as rx_lo , rx_rf_bandwidth, number of samples to receive, gain_control_mode_chan0 and manual gain value can be set.
+The FMCW reader uses either fast_attack or slow_attack AGC control mode so manual gain is set to 0 dB.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">raw_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+<span class="sd">&quot;&quot;&quot; Clear the Rx Buffer &quot;&quot;&quot;</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">10</span><span class="p">):</span>
+   <span class="n">raw</span> <span class="o">=</span> <span class="n">sdr</span><span class="o">.</span><span class="n">rx</span><span class="p">()</span>
+<span class="sd">&quot;&quot;&quot; Receive the number of samples N times in a loop&quot;&quot;&quot;</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">100</span><span class="p">):</span>
+   <span class="n">raw</span> <span class="o">=</span> <span class="n">sdr</span><span class="o">.</span><span class="n">rx</span><span class="p">()</span>
+   <span class="c1">#raw = sdr2.rx()</span>
+   <span class="n">raw_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">raw_data</span><span class="p">,</span><span class="n">raw</span><span class="p">)</span>
+ <span class="sd">&quot;&quot;&quot; Store the received sample in a file &quot;&quot;&quot;</span>
+<span class="n">raw_data</span><span class="o">=</span><span class="n">raw_data</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">complex64</span><span class="p">)</span>
+<span class="n">raw_data</span><span class="o">.</span><span class="n">tofile</span><span class="p">(</span><span class="s2">&quot;raw_data.iq&quot;</span><span class="p">)</span>
+<span class="n">sdr</span><span class="o">.</span><span class="n">tx_destroy_buffer</span><span class="p">()</span> <span class="c1">#sto transmitting</span>
+</pre></div>
+</div>
+<p>The above code snippet gives the Rx block. Initially Rx buffer is cleared in the first loop. Depending on number of samples needed the looping construct can be used to receive
+samples corresponding to any number of seconds. These collected samples are appended, later pushed to a file.</p>
+<p>This file is processed in <em>FMCW_analysis.py</em> to obtain the frequency. The below code snippet shows the python program to calculate the resonant frequency.
+In FMCW the frequency corresponding to the minimum magnitude is taken to be the resonant frequency.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="n">fs</span> <span class="o">=</span> <span class="mf">50e6</span> <span class="c1">#50e6</span>
+<span class="n">ts</span><span class="o">=</span><span class="mi">1</span><span class="o">/</span><span class="n">fs</span>
+<span class="n">T</span> <span class="o">=</span> <span class="mf">1e-3</span>
+<span class="n">N</span><span class="o">=</span><span class="mi">50000</span> <span class="c1">#5050</span>
+<span class="n">fc</span> <span class="o">=</span> <span class="mf">2.41e9</span>
+
+<span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">50000</span><span class="p">)</span><span class="o">*</span><span class="n">ts</span>
+
+<span class="n">raw_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="s2">&quot;/home/bharathvbhatt/Documents/thesis/data/wired/raw_data.iq&quot;</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">complex64</span><span class="p">)</span>
+<span class="n">raw_data</span> <span class="o">=</span> <span class="n">raw_data</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="mi">14</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The above code snippet includes the necessary libraries for the calculations and if necessary plotting (commented code mostly used to make plots for the thesis).
+The sampling frequency and time period is taken same as the one used in the tx-rx file.
+The received samples stored in a read is stored in raw_data array.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot; Iterate over the entire received data in steps of N&quot;&quot;&quot;</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">5000000</span><span class="p">,</span><span class="mi">50000</span><span class="p">):</span>
+   <span class="n">start_f</span> <span class="o">=</span> <span class="n">i</span>
+   <span class="n">end_f</span> <span class="o">=</span> <span class="n">i</span><span class="o">+</span><span class="mi">50000</span>
+   <span class="n">samp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+   <span class="sd">&quot;&quot;&quot; Each measurement is 50000 samples corrresponding to 1 ramp of the FMCW i.e 1ms&quot;&quot;&quot;</span>
+   <span class="n">samp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">samp</span><span class="p">,</span><span class="n">raw_data</span><span class="p">[</span><span class="n">start_f</span><span class="p">:</span><span class="n">end_f</span><span class="p">])</span>
+
+   <span class="n">sig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+   <span class="n">fft_mag</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fft</span><span class="p">(</span><span class="n">samp</span><span class="p">)))</span> <span class="c1">#compute the magnitude response of the fft</span>
+   <span class="n">sig_index</span> <span class="o">=</span> <span class="n">fft_mag</span> <span class="o">&gt;</span><span class="mf">0.54</span>  <span class="c1"># used as threshold to remove the noise floor</span>
+   <span class="n">fft_sig</span> <span class="o">=</span><span class="n">fft_mag</span><span class="o">*</span><span class="n">sig_index</span>
+   <span class="n">sig_index</span> <span class="o">=</span> <span class="n">fft_sig</span><span class="o">&gt;</span><span class="mi">0</span>
+   <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">20000</span><span class="p">):</span>  <span class="c1"># look inside the bandwidth of 20 MHz</span>
+         <span class="k">if</span><span class="p">(</span><span class="n">sig_index</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="kc">True</span><span class="p">):</span>
+             <span class="n">sig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sig</span><span class="p">,</span><span class="n">fft_mag</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+   <span class="n">fft_value</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">sig</span><span class="p">)</span>
+   <span class="n">fft_bin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">fft_sig</span><span class="o">==</span><span class="n">fft_value</span><span class="p">)</span>
+   <span class="n">val</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fft_bin</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>   <span class="c1"># append min value into a list</span>
+        <span class="c1">#plt.plot(f_win,fft_sig)</span>
+<span class="n">fmcw_bin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+<span class="n">fmcw_bin</span><span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fmcw_bin</span><span class="p">,</span><span class="n">val</span><span class="p">)</span>
+<span class="n">fmcw_bin</span><span class="o">.</span><span class="n">tofile</span><span class="p">(</span><span class="s2">&quot;fmcw_bin.txt&quot;</span><span class="p">)</span> <span class="c1"># store the raw value of the resonant frequency in a file, which can be used to compute STD.</span>
+<span class="n">avg</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">val</span><span class="p">)</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="c1"># Average value of the frequency</span>
+<span class="n">freq</span> <span class="o">=</span> <span class="p">(</span><span class="n">avg</span><span class="o">*</span><span class="n">fs</span><span class="o">/</span><span class="n">N</span><span class="p">)</span><span class="o">+</span><span class="n">fc</span>    <span class="c1"># Frequency in GHz</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">freq</span><span class="o">/</span><span class="mf">1.0e9</span><span class="p">)</span> <span class="c1"># print resonant frequency only the float point without GHz (which is assumed i,e normalized to GHz)</span>
+</pre></div>
+</div>
+<p>The data is analysed by iterating over received data in setps of the number of samples collected (N). The fft of the N samples is performed. Then the required bandwidth
+need for analysis is taken by setting threshold. Then the frequency corresponding to the minimum is computed and appended to the list. Once all samples are analysed, the
+average of the frequency bin is calculated. This is stored in a file for other analysis such as to compute the Standard deviation. The average fft bin value is converted
+to the frequency in GHz and then printed by normalising to GHz.</p>
+<p>File based programming is used so that data can be analysed on its own at a later stage using automatic script. Also, these files can be labelled and stored to compare measurements.</p>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="Installation.html" class="btn btn-neutral float-left" title="Installation Setup" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="DFE.html" class="btn btn-neutral float-right" title="DFE Reader" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Bharath.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
